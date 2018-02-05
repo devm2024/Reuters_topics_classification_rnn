@@ -1,3 +1,10 @@
+'''
+Demonstration of the power of RNN with CNN.
+Basic classifier using the Conv-LSTM architecture. Reuters data set is available with keras library
+The accuracy can be further tuned by using the pretrained embedding matrix and some data cleaning.
+'''
+
+# Legendary imports
 import numpy as np
 from keras.datasets import imdb
 from keras.layers.core import Dense, Dropout, Activation
@@ -10,13 +17,18 @@ from keras.preprocessing import sequence
 # fix random seed for reproducibility
 numpy.random.seed(7)
 
+# Restrict the size of vocab to 5000
 top_words = 5000
+
 
 #Limiting the maxlen to 250 since most articles have lesser than 250 length
 (x_train, y_train), (x_test, y_test) = reuters.load_data(path="reuters.npz",
                                                          num_words=top_words,
                                                          maxlen=250,
                                                          test_split=0.2)
+
+# Since keras LSTM don't support variable input, so we will have to pad the sequences.
+
 x_train = sequence.pad_sequences(x_train, maxlen=250)
 x_test = sequence.pad_sequences(x_test, maxlen=250)
 from keras.utils import to_categorical
@@ -24,7 +36,8 @@ from keras.utils import to_categorical
 y_train_en = to_categorical(y_train)
 y_test_en = to_categorical(y_test)
 
-# create the model
+
+# Create the model using keras Sequential api
 embedding_vecor_length = 64
 model = Sequential()
 model.add(Embedding(top_words, embedding_vecor_length, input_length=250))
@@ -37,12 +50,13 @@ model.add(Activation('softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 print(model.summary())
 
+# Fit the model
 model.fit(x_train, y_train_en, validation_data=(x_test, y_test_en), epochs=5, batch_size=64)
 
 #Done, can be ran in notebook or here
 # Without CNN, output was 63% accuracy
 # With CNN, output is 
-# 65% accuracy in 46 classes is really good
+# 67% accuracy in 46 classes is really good
 ''' Here is the output of the model
 Train on 7602 samples, validate on 1901 samples
 Epoch 1/5
